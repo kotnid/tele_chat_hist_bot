@@ -2,6 +2,7 @@ import configparser
 from logging import info , basicConfig , INFO
 from telebot import TeleBot
 import asyncio
+import json
 
 
 # config setup
@@ -36,7 +37,38 @@ def upload_file(message):
         file.write(downloaded_file)
     
     bot.reply_to(message , "Data updated ! You can check yout chat history by using cmd on that group")
+
+
+# word count 
+@bot.message_handler(commands="word")
+def number(message):
+    f = open('result.json','r',encoding="utf-8")
+    search = message.text.replace("/word ", "")
+    data = json.load(f)
+
+    list = []
+    name = []
+    count = 0 
+    for msg in data["messages"]:
+        if msg["type"] != "message":
+            continue
+
+        if search in msg["text"]:
+            count += 1 
+            if msg["from"] in name:
+                list[name.index(msg["from"])] += 1 
+            else:
+                name.append(msg["from"])
+                list.append(1)
+
+    bot.reply_to(message , "word {} mentioned {} times ".format(search, count))
+
+    msg = ""
     
+    for i in range(len(list)):
+        msg += str(name[i]) + " : _" + str(list[i]) + "_ " + "\n"
+
+    bot.reply_to(message , msg) 
 
 
 # run telebot
