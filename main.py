@@ -31,6 +31,21 @@ botToken = config['telegram']['token']
 bot =  TeleBot(botToken,  parse_mode="Markdown")
 
 
+# tutorial
+@bot.message_handler(commands=['start','help'])
+def start(message):
+    bot.reply_to(message , '''
+/help - show this msg
+/start - show this msg
+/upload - upload zip file
+/word [arg] - word count
+/msg_count - message count
+/sticker_count - sticker count
+/sticker [start] [end] - sticker ranking
+/check [arg] - specific sticker count
+''')
+
+
 # upload file 
 @bot.message_handler(commands=['upload'])
 def upload(message):
