@@ -7,7 +7,8 @@ from time import sleep
 from os import path , remove
 import pandas
 import matplotlib.pyplot as plt
-
+from zipfile import ZipFile
+from shutil import rmtree
 
 plt.switch_backend('agg')
 
@@ -31,25 +32,29 @@ bot =  TeleBot(botToken,  parse_mode="Markdown")
 # upload file 
 @bot.message_handler(commands=['upload'])
 def upload(message):
-    bot.register_next_step_handler(bot.reply_to(message , 'Pls upload your json file'), upload_file)
+    bot.register_next_step_handler(bot.reply_to(message , 'Pls upload your zip file'), upload_file)
 
 def upload_file(message):
-    if message.document.file_name[-5:] != ".json":
-        bot.reply_to(message , "Wrong file type")
-        return ''
-
     file_info = bot.get_file(message.document.file_id)
     downloaded_file = bot.download_file(file_info.file_path)
-    with open('result.json' , 'wb') as file:
+
+    with open('result.zip' , 'wb') as file:
         file.write(downloaded_file)
     
+    if path.exists('data'):
+        rmtree('data')
+
+    with ZipFile('result.zip', 'r') as zip_ref:
+        zip_ref.extractall()
+    
+    remove('result.zip')
     bot.reply_to(message , "Data updated ! You can check yout chat history by using cmd on that group")
 
 
 # word count 
 @bot.message_handler(commands="word")
 def number(message):
-    f = open('result.json','r',encoding="utf-8")
+    f = open('data/result.json','r',encoding="utf-8")
     search = message.text.replace("/word ", "")
     data = json.load(f)
 
@@ -81,8 +86,7 @@ def number(message):
 # message count
 @bot.message_handler(commands="msg_count")
 def msg_count(message):
-    #f = open('ChatExport_2022-03-14 (1)\\result.json','r',encoding="utf-8")
-    f = open('result.json','r',encoding="utf-8")
+    f = open('data/result.json','r',encoding="utf-8")
     data = json.load(f)
 
     name = []
@@ -124,7 +128,7 @@ def msg_count(message):
 # sticker count
 @bot.message_handler(commands="sticker_count")
 def sticker_count(message):
-    f = open('result.json','r',encoding="utf-8")
+    f = open('data/result.json','r',encoding="utf-8")
     data = json.load(f)
 
     name = []
