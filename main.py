@@ -12,6 +12,7 @@ from zipfile import ZipFile
 from shutil import rmtree
 from pandas import DataFrame
 from wordcloud import WordCloud
+from collections import Counter
 
 
 plt.switch_backend('agg')
@@ -46,6 +47,8 @@ def start(message):
 /sticker - sticker ranking
 /check - specific sticker count
 /dayCount - msg count on each weekday
+/wordCloud - create a wordCloud
+/freq - show most frequent words
 ''')
 
 
@@ -380,6 +383,42 @@ def word_cloud(message):
     sleep(3)
     if path.exists("output.png"):
         remove("output.png")
-        
+
+
+@bot.message_handler(commands=['freq'])
+def freq(message):
+    bot.register_next_step_handler(bot.reply_to(message , "Top how many?") , freq_handler)
+
+def freq_handler(message):
+    f = open('data/result.json','r',encoding="utf-8")
+    data = json.load(f)
+
+    df = pandas.DataFrame(data["messages"])
+    df = df.query("type == 'message'").query(f"text != ''")
+    s = ''
+    for text in df['text']:
+        if type(text) == str:
+            s += ' '+text
+
+    word_frequency = Counter(s.split()).most_common(int(message.text))
+
+    words = [word for word, _ in word_frequency]
+    counts = [counts for _, counts in word_frequency]
+
+    plt.barh(words, counts)
+    plt.title(f"{message.text} most frequent tokens in description")
+    plt.ylabel("Frequency")
+    plt.xlabel("Words")
+    plt.tight_layout()
+    plt.gca().invert_yaxis()
+    plt.savefig('output.png')
+
+    bot.send_photo(message.chat.id , photo=open("output.png" , "rb"))
+
+    sleep(3)
+    if path.exists("output.png"):
+        remove("output.png")
+
+
 # run telebot
 asyncio.run(bot.infinity_polling())
