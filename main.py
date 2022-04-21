@@ -1,6 +1,5 @@
 import configparser
 from logging import info , basicConfig , INFO
-from re import L
 from telebot import TeleBot
 import asyncio
 import json
