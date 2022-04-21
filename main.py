@@ -1,5 +1,6 @@
 import configparser
 from logging import info , basicConfig , INFO
+from click import command
 from telebot import TeleBot
 import asyncio
 import json
@@ -31,6 +32,7 @@ basicConfig(level= INFO,
 # telebot setup
 botToken = config['telegram']['token']
 bot =  TeleBot(botToken,  parse_mode="Markdown")
+groups = ['group' , 'supergroup']
 
 
 # tutorial
@@ -90,15 +92,27 @@ def remove_file(message):
     else:
         bot.reply_to(message , "No data found!")
 
+@bot.message_handler(commands=['test'])
+def test(message):
+    print(message.chat.id)
 
 # word count 
-@bot.message_handler(commands="word")
+@bot.message_handler(commands=["word"])
 def number(message):
     bot.register_next_step_handler(bot.reply_to(message , 'Pls enter the word'), word_search)
 
 
 def word_search(message):
-    f = open('data/result.json','r',encoding="utf-8")
+    if message.chat.type not in groups:
+        bot.reply_to(message , "Pls use in group")
+        return ''
+
+    print(str(message.chat.id).replace('-' , ''))
+    if not path.exists(str(message.chat.id).replace('-' , '')):
+        bot.reply_to(message , "No data uploaded!")
+        return ''
+
+    f = open('{}/result.json'.format(str(message.chat.id).replace('-','')),'r',encoding="utf-8")
     search = message.text
     data = json.load(f)
 
@@ -124,13 +138,23 @@ def word_search(message):
     for i in range(len(list)):
         msg += str(name[i]) + " : _" + str(list[i]) + "_ " + "\n"
 
+    print(msg)
     bot.reply_to(message , msg) 
 
 
 # message count
 @bot.message_handler(commands="msgCount")
 def msgCount(message):
-    f = open('data/result.json','r',encoding="utf-8")
+    if message.chat.type not in groups:
+        bot.reply_to(message , "Pls use in group")
+        return ''
+
+    
+    if not path.exists(str(message.chat.id).replace('-' , '')):
+        bot.reply_to(message , "No data uploaded!")
+        return ''
+
+    f = open('{}/result.json'.format(str(message.chat.id).replace('-','')),'r',encoding="utf-8")
     data = json.load(f)
 
     name = []
@@ -172,7 +196,16 @@ def msgCount(message):
 # sticker count
 @bot.message_handler(commands="stickerCount")
 def stickerCount(message):
-    f = open('data/result.json','r',encoding="utf-8")
+    if message.chat.type not in groups:
+        bot.reply_to(message , "Pls use in group")
+        return ''
+
+    
+    if not path.exists(str(message.chat.id).replace('-' , '')):
+        bot.reply_to(message , "No data uploaded!")
+        return ''
+
+    f = open('{}/result.json'.format(str(message.chat.id).replace('-','')),'r',encoding="utf-8")
     data = json.load(f)
 
     name = []
@@ -218,7 +251,16 @@ def sticker(message):
     bot.register_next_step_handler(bot.reply_to(message , 'Pls enter the start and end'), sticker_rank)
 
 def sticker_rank(message):
-    f = open('data\\result.json','r',encoding="utf-8")
+    if message.chat.type not in groups:
+        bot.reply_to(message , "Pls use in group")
+        return ''
+
+    
+    if not path.exists(str(message.chat.id).replace('-' , '')):
+        bot.reply_to(message , "No data uploaded!")
+        return ''
+
+    f = open('{}/result.json'.format(str(message.chat.id).replace('-','')),'r',encoding="utf-8")
     data = json.load(f)
     list = message.text.split(' ')
     search = list[0]
@@ -264,7 +306,16 @@ def sticker(message):
     bot.register_next_step_handler(bot.reply_to(message , 'Pls enter the number'), sticker_check)
 
 def sticker_check(message):
-    f = open('data\\result.json','r',encoding="utf-8")
+    if message.chat.type not in groups:
+        bot.reply_to(message , "Pls use in group")
+        return ''
+
+    
+    if not path.exists(str(message.chat.id).replace('-' , '')):
+        bot.reply_to(message , "No data uploaded!")
+        return ''
+
+    f = open('{}/result.json'.format(str(message.chat.id).replace('-','')),'r',encoding="utf-8")
     data = json.load(f)
     search = message.text
     list = []
@@ -342,7 +393,16 @@ def sticker_check(message):
 # count msg and sticker on each weekdays
 @bot.message_handler(commands="dayCount")
 def dayCount(message):
-    f = open('data/result.json','r',encoding="utf-8")
+    if message.chat.type not in groups:
+        bot.reply_to(message , "Pls use in group")
+        return ''
+
+    
+    if not path.exists(str(message.chat.id).replace('-' , '')):
+        bot.reply_to(message , "No data uploaded!")
+        return ''
+
+    f = open('{}/result.json'.format(str(message.chat.id).replace('-','')),'r',encoding="utf-8")
     data = json.load(f)
 
     df = pandas.DataFrame(data["messages"])
@@ -381,7 +441,16 @@ def dayCount(message):
 #wordcloud
 @bot.message_handler(commands=['wordCloud'])
 def word_cloud(message):
-    f = open('data/result.json','r',encoding="utf-8")
+    if message.chat.type not in groups:
+        bot.reply_to(message , "Pls use in group")
+        return ''
+
+    
+    if not path.exists(str(message.chat.id).replace('-' , '')):
+        bot.reply_to(message , "No data uploaded!")
+        return ''
+
+    f = open('{}/result.json'.format(str(message.chat.id).replace('-','')),'r',encoding="utf-8")
     data = json.load(f)
 
     df = pandas.DataFrame(data["messages"])
@@ -408,7 +477,16 @@ def freq(message):
     bot.register_next_step_handler(bot.reply_to(message , "Top how many?") , freq_handler)
 
 def freq_handler(message):
-    f = open('data/result.json','r',encoding="utf-8")
+    if message.chat.type not in groups:
+        bot.reply_to(message , "Pls use in group")
+        return ''
+
+    
+    if not path.exists(str(message.chat.id).replace('-' , '')):
+        bot.reply_to(message , "No data uploaded!")
+        return ''
+
+    f = open('{}/result.json'.format(str(message.chat.id).replace('-','')),'r',encoding="utf-8")
     data = json.load(f)
 
     df = pandas.DataFrame(data["messages"])
