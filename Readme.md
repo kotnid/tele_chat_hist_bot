@@ -20,24 +20,24 @@
 ### 7. Remove the data by typing ```/remove``` if u want 
 
 ## Command available: ##
-- /help - show this msg
-- /start - show this msg
-- /upload - upload zip file
-- /remove - remove folder 
-- /word - word count
-- /msgCount - message count
+### /help - show this msg ###
+### /start - show this msg ###
+### /upload - upload zip file ###
+### /remove - remove folder ###
+### /word - word count ###
+### /msgCount - message count ###
 ![msg_count](src/msg_count.png)
-- /stickerCount - sticker count
+### /stickerCount - sticker count ###
 ![sticker_count](src/sticker_count.png)
-- /sticker - sticker ranking
+### /sticker - sticker ranking ###
 ![sticker_rank](src/sticker_rank.png)
-- /check - specific sticker count
+### /check - specific sticker count ###
 ![sticker](src/sticker.png)
-- /dayCount - msg count on each weekday
+### /dayCount - msg count on each weekday ###
 ![weekday](src/weekday.jpg)
-- /wordCloud - create a wordCloud
+### /wordCloud - create a wordCloud ###
 ![wordCloud](src/main.jpg)
-- /freq - show most frequent words
+### /freq - show most frequent words ###
 ![freq](src/freq.jpg)
 
 ## Credit ##
@@ -47,3 +47,8 @@
 
 
 
+me when saw a error :  
+
+![gif](https://c.tenor.com/DZWHd8VfuE4AAAAC/azusa-money.gif)
+
+but i dun like error bruh
