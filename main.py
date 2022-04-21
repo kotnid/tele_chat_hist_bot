@@ -3,6 +3,13 @@ from logging import info , basicConfig , INFO
 from telebot import TeleBot
 import asyncio
 import json
+from time import sleep
+from os import path , remove
+import pandas
+import matplotlib.pyplot as plt
+
+
+plt.switch_backend('agg')
 
 
 # config setup
@@ -69,6 +76,49 @@ def number(message):
         msg += str(name[i]) + " : _" + str(list[i]) + "_ " + "\n"
 
     bot.reply_to(message , msg) 
+
+
+# message count
+@bot.message_handler(commands="msg_count")
+def msg_count(message):
+    #f = open('ChatExport_2022-03-14 (1)\\result.json','r',encoding="utf-8")
+    f = open('result.json','r',encoding="utf-8")
+    data = json.load(f)
+
+    name = []
+    for msg in data["messages"]:
+        if msg["type"] != "message":
+            continue
+        try:
+            if msg["from"] not in name:
+                name.append(msg["from"]) 
+        except:
+            pass
+
+    
+    for people in name:
+        df = pandas.DataFrame(data["messages"])
+        df = df.rename(columns={"from":"name"})
+        df = df.query("type == 'message'").query(f"name == '{people}'")
+        df = df[['date']]
+        df['date'] = pandas.to_datetime(df['date'])
+        df['count'] = 1
+        df = df.resample("W", on='date').agg({'count':'sum'}).reset_index()
+        df['sum'] = df['count'].cumsum()
+        plt.plot(df["date"] , df["sum"]  , label=people)
+
+    plt.legend()
+    plt.title('Total msg')
+    plt.xlabel('time')
+    plt.ylabel('amount')
+    plt.gcf().autofmt_xdate()
+    plt.savefig('plot.jpg')
+    plt.clf()
+    bot.send_photo(message.chat.id , photo=open("plot.jpg" , "rb"))
+
+    sleep(3)
+    if path.exists("plot.jpg"):
+        remove("plot.jpg")
 
 
 # run telebot
