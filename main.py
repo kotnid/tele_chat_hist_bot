@@ -42,6 +42,7 @@ def start(message):
 /help - show this msg
 /start - show this msg
 /upload - upload zip file
+/remove - remove folder
 /word - word count
 /msgCount - message count
 /stickerCount - sticker count
