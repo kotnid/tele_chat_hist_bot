@@ -43,6 +43,7 @@ def start(message):
 /stickerCount - sticker count
 /sticker - sticker ranking
 /check - specific sticker count
+/dayCount - msg count on each weekday
 ''')
 
 
@@ -315,6 +316,44 @@ def sticker_check(message):
     if path.exists("plot.jpg"):
         remove("plot.jpg")
 
+
+# count msg and sticker on each weekdays
+@bot.message_handler(commands="dayCount")
+def dayCount(message):
+    f = open('data/result.json','r',encoding="utf-8")
+    data = json.load(f)
+
+    df = pandas.DataFrame(data["messages"])
+    df = df.rename(columns={"from":"name"})
+    df = df.query("type == 'message'")
+    df = df[['date']]
+    df['date'] = pandas.to_datetime(df['date'])
+    df['count'] = 1
+    days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday']
+    week_df = df.groupby(df['date'].dt.day_name()).sum().reindex(days).reset_index()
+
+    df2 = pandas.DataFrame(data["messages"])
+    df2 = df2.rename(columns={"from":"name"})
+    df2 = df2.query("type == 'message'").query(f"media_type == 'sticker'")
+    df2 = df2[['date']]
+    df2['date'] = pandas.to_datetime(df2['date'])
+    df2['count'] = 1
+    week_df2 = df2.groupby(df2['date'].dt.day_name()).sum().reindex(days).reset_index()
+
+    plt.bar(week_df['date'] , week_df['count'] , label='msg')
+    plt.bar(week_df2['date'] , week_df2['count'] , label='sticker')
+    plt.legend()
+    plt.title('Total msg on each day')
+    plt.xlabel('weekday')
+    plt.ylabel('amount')
+    plt.legend()
+    plt.savefig('plot.jpg')
+    plt.clf()
+    bot.send_photo(message.chat.id , photo=open("plot.jpg" , "rb"))
+
+    sleep(3)
+    if path.exists("plot.jpg"):
+        remove("plot.jpg")
 
 # run telebot
 asyncio.run(bot.infinity_polling())
