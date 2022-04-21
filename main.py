@@ -1,5 +1,6 @@
 import configparser
 from logging import info , basicConfig , INFO
+from re import L
 from telebot import TeleBot
 import asyncio
 import json
@@ -10,6 +11,7 @@ import matplotlib.pyplot as plt
 from zipfile import ZipFile
 from shutil import rmtree
 from pandas import DataFrame
+from wordcloud import WordCloud
 
 
 plt.switch_backend('agg')
@@ -355,5 +357,29 @@ def dayCount(message):
     if path.exists("plot.jpg"):
         remove("plot.jpg")
 
+
+#wordcloud
+@bot.message_handler(commands=['wordcloud'])
+def word_cloud(message):
+    f = open('data/result.json','r',encoding="utf-8")
+    data = json.load(f)
+
+    df = pandas.DataFrame(data["messages"])
+    df = df.query("type == 'message'").query(f"text != ''")
+    s = ''
+    for text in df['text']:
+        if type(text) == str:
+            s += ' '+text
+    
+
+    cloud = WordCloud(max_words=500 , background_color="white").generate(s)
+    cloud.to_file('output.png')
+
+    bot.send_photo(message.chat.id , photo=open("output.png" , "rb"))
+
+    sleep(3)
+    if path.exists("output.png"):
+        remove("output.png")
+        
 # run telebot
 asyncio.run(bot.infinity_polling())
