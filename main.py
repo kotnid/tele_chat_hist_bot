@@ -170,6 +170,7 @@ def sticker_count(message):
         remove("plot.jpg")
 
 
+# stickre ranking
 @bot.message_handler(commands="sticker")
 def sticker(message):
     f = open('data\\result.json','r',encoding="utf-8")
@@ -210,6 +211,84 @@ def sticker(message):
     for i in range(int(search)-1,int(end)-2,-1):
         bot.send_photo(message.chat.id , photo = open("data/"+file[i]+"_thumb.jpg" , "rb") , caption=" {} : ".format(i+1) + "\n" + "total used : {}".format(amount[i]))
         sleep(2)
+
+
+# specific sticker count
+@bot.message_handler(commands="check")
+def sticker(message):
+    f = open('data\\result.json','r',encoding="utf-8")
+    data = json.load(f)
+    search = message.text.replace("/check ", "")
+    list = []
+    name = []
+    count = 0 
+    for msg in data["messages"]:
+        if msg["type"] != "message":
+            continue
+        try:
+            if msg["media_type"] == "sticker":
+                if msg["file"] in name:
+                    list[name.index(msg["file"])] += 1 
+
+                else:
+                    name.append(msg["file"])
+                    list.append(1)
+        except:
+            pass
+
+
+    df = DataFrame({'name' : name,
+                'amount' : list})
+
+    df = df.nlargest(len(name),'amount')
+
+    file = df['name'].tolist()
+    amount = df["amount"].tolist()
+
+    get = file[int(search)-1]
+    name2 = []
+
+    count = amount[int(search)-1]
+
+    for msg in data["messages"]:
+        if msg["type"] != "message":
+            continue
+        try:
+            if msg["media_type"] == "sticker":
+                if msg["file"] == get:
+                    if msg["from"] in name2:
+                        list[name2.index(msg["from"])] += 1 
+                    else:
+                        name2.append(msg["from"]) 
+        except:
+            pass
+
+    for people in name2:
+        df = pandas.DataFrame(data["messages"])
+        df = df.rename(columns={"from":"name"})
+        df = df.query("type == 'message'").query(f"file == '{get}'").query(f"name == '{people}'")
+        
+        df = df[['date']]
+        df['date'] = pandas.to_datetime(df['date'])
+        df['count'] = 1
+        df = df.resample("D", on='date').agg({'count':'sum'}).reset_index()
+        df['sum'] = df['count'].cumsum()
+        plt.plot(df["date"] , df["sum"]  , label=people , marker='o')
+
+    
+    plt.legend()
+    plt.title('Total used of the stickers')
+    plt.xlabel('time')
+    plt.ylabel('amount')
+    plt.gcf().autofmt_xdate()
+    plt.savefig('plot.jpg')
+    plt.clf()
+    bot.send_photo(message.chat.id , photo=open("data/"+get+"_thumb.jpg" , "rb") ,caption = f"Total used time : {count}")
+    bot.send_photo(message.chat.id , photo=open("plot.jpg" , "rb"))
+
+    sleep(3)
+    if path.exists("plot.jpg"):
+        remove("plot.jpg")
 
 
 # run telebot
