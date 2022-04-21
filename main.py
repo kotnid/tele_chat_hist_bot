@@ -4,7 +4,7 @@ from telebot import TeleBot
 import asyncio
 import json
 from time import sleep
-from os import path , remove
+from os import path , remove , rename
 import pandas
 import matplotlib.pyplot as plt
 from zipfile import ZipFile
@@ -62,15 +62,33 @@ def upload_file(message):
 
     with open('result.zip' , 'wb') as file:
         file.write(downloaded_file)
-    
-    if path.exists('data'):
-        rmtree('data')
 
     with ZipFile('result.zip', 'r') as zip_ref:
         zip_ref.extractall()
     
+    f = open('data/result.json','r',encoding="utf-8")
+    data = json.load(f)
+    f.close()
+
+    if path.exists(str(data['id'])):
+        rmtree(str(data['id']))
+
+    rename("data" , str(data['id']))
+
     remove('result.zip')
-    bot.reply_to(message , "Data updated ! You can check yout chat history by using cmd on that group")
+    bot.reply_to(message , "ID : {} data updated ! You can check yout chat history by using cmd on that group".format(data['id']))
+
+
+# remove file
+@bot.message_handler(commands=['remove'])
+def remove_file(message):
+    if path.exists(str(message.chat.id).replace('-' , '')):
+        rmtree(str(message.chat.id).replace('-' , ''))
+
+        bot.reply_to(message , "ID : {} data removed!".format(str(message.chat.id).replace('-' , '')))
+
+    else:
+        bot.reply_to(message , "No data found!")
 
 
 # word count 
@@ -384,6 +402,7 @@ def word_cloud(message):
         remove("output.png")
 
 
+# Get top frequency msg
 @bot.message_handler(commands=['freq'])
 def freq(message):
     bot.register_next_step_handler(bot.reply_to(message , "Top how many?") , freq_handler)
