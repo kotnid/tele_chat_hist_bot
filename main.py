@@ -9,6 +9,8 @@ import pandas
 import matplotlib.pyplot as plt
 from zipfile import ZipFile
 from shutil import rmtree
+from pandas import DataFrame
+
 
 plt.switch_backend('agg')
 
@@ -166,6 +168,48 @@ def sticker_count(message):
     sleep(3)
     if path.exists("plot.jpg"):
         remove("plot.jpg")
+
+
+@bot.message_handler(commands="sticker")
+def sticker(message):
+    f = open('data\\result.json','r',encoding="utf-8")
+    data = json.load(f)
+    list = message.text.replace("/sticker ", "").split()
+    search = list[0]
+    end = list[1]
+    list = []
+    name = []
+    count = 0 
+    for msg in data["messages"]:
+        if msg["type"] != "message":
+            continue
+        try:
+            if msg["media_type"] == "sticker":
+                count += 1
+
+                if msg["file"] in name:
+                    list[name.index(msg["file"])] += 1 
+
+                else:
+                    name.append(msg["file"])
+                    list.append(1)
+        except:
+            pass
+
+
+    df = DataFrame({'name' : name,
+                'amount' : list})
+
+    df = df.nlargest(int(search),'amount')
+
+    file = df['name'].tolist()
+    amount = df["amount"].tolist()
+
+    bot.reply_to(message , f"Top {search} - {end} of sticker in the group")
+
+    for i in range(int(search)-1,int(end)-2,-1):
+        bot.send_photo(message.chat.id , photo = open("data/"+file[i]+"_thumb.jpg" , "rb") , caption=" {} : ".format(i+1) + "\n" + "total used : {}".format(amount[i]))
+        sleep(2)
 
 
 # run telebot
