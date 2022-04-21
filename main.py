@@ -39,8 +39,8 @@ def start(message):
 /start - show this msg
 /upload - upload zip file
 /word - word count
-/msg_count - message count
-/sticker_count - sticker count
+/msgCount - message count
+/stickerCount - sticker count
 /sticker - sticker ranking
 /check - specific sticker count
 ''')
@@ -105,8 +105,8 @@ def word_search(message):
 
 
 # message count
-@bot.message_handler(commands="msg_count")
-def msg_count(message):
+@bot.message_handler(commands="msgCount")
+def msgCount(message):
     f = open('data/result.json','r',encoding="utf-8")
     data = json.load(f)
 
@@ -147,8 +147,8 @@ def msg_count(message):
 
 
 # sticker count
-@bot.message_handler(commands="sticker_count")
-def sticker_count(message):
+@bot.message_handler(commands="stickerCount")
+def stickerCount(message):
     f = open('data/result.json','r',encoding="utf-8")
     data = json.load(f)
 
