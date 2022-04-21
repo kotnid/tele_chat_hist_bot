@@ -362,7 +362,7 @@ def dayCount(message):
 
 
 #wordcloud
-@bot.message_handler(commands=['wordcloud'])
+@bot.message_handler(commands=['wordCloud'])
 def word_cloud(message):
     f = open('data/result.json','r',encoding="utf-8")
     data = json.load(f)
