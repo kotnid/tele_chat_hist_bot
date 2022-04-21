@@ -38,11 +38,11 @@ def start(message):
 /help - show this msg
 /start - show this msg
 /upload - upload zip file
-/word [arg] - word count
+/word - word count
 /msg_count - message count
 /sticker_count - sticker count
-/sticker [start] [end] - sticker ranking
-/check [arg] - specific sticker count
+/sticker - sticker ranking
+/check - specific sticker count
 ''')
 
 
@@ -71,8 +71,12 @@ def upload_file(message):
 # word count 
 @bot.message_handler(commands="word")
 def number(message):
+    bot.register_next_step_handler(bot.reply_to(message , 'Pls enter the word'), word_search)
+
+
+def word_search(message):
     f = open('data/result.json','r',encoding="utf-8")
-    search = message.text.replace("/word ", "")
+    search = message.text
     data = json.load(f)
 
     list = []
@@ -188,9 +192,12 @@ def sticker_count(message):
 # stickre ranking
 @bot.message_handler(commands="sticker")
 def sticker(message):
+    bot.register_next_step_handler(bot.reply_to(message , 'Pls enter the start and end'), sticker_rank)
+
+def sticker_rank(message):
     f = open('data\\result.json','r',encoding="utf-8")
     data = json.load(f)
-    list = message.text.replace("/sticker ", "").split()
+    list = message.text.split(' ')
     search = list[0]
     end = list[1]
     list = []
@@ -231,9 +238,12 @@ def sticker(message):
 # specific sticker count
 @bot.message_handler(commands="check")
 def sticker(message):
+    bot.register_next_step_handler(bot.reply_to(message , 'Pls enter the number'), sticker_check)
+
+def sticker_check(message):
     f = open('data\\result.json','r',encoding="utf-8")
     data = json.load(f)
-    search = message.text.replace("/check ", "")
+    search = message.text
     list = []
     name = []
     count = 0 
